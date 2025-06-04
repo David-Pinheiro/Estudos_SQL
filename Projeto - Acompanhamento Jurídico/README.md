@@ -36,9 +36,9 @@ O banco de dados foi planejado para suportar um sistema web com as seguintes fun
 
 A modelagem segue três níveis:
 
-1. Modelo Conceitual: Diagrama de Caso de Uso (UML);
+1. Modelo Conceitual: Diagrama Entidade-Relacionamento (DER);
 
-2. Modelo Lógico: Diagrama Entidade-Relacionamento (DER);
+2. Modelo Lógico: Diagrama relacional com tabelas, tipos e relacionamentos;
 
 3. Modelo Físico: Script em MySQL com criação de tabelas, relacionamentos, chaves primárias e estrangeiras, procedures e inserção de dados fictícios para testes.
 
