@@ -32,15 +32,13 @@ O banco de dados foi planejado para suportar um sistema web com as seguintes fun
 
 - Criação de relatórios com as informações armazenadas no banco de dados.
 
-## 📊 Modelagem do Banco de Dados
+## 📊 Conteúdo:
 
-A modelagem segue três níveis:
+1. Diagrama Entidade-Relacionamento (DER);
 
-1. Modelo Conceitual: Diagrama Entidade-Relacionamento (DER);
+2. Diagrama relacional com tabelas, tipos e relacionamentos;
 
-2. Modelo Lógico: Diagrama relacional com tabelas, tipos e relacionamentos;
-
-3. Modelo Físico: Script em MySQL com criação de tabelas, relacionamentos, chaves primárias e estrangeiras, procedures e inserção de dados fictícios para testes.
+3. Script em MySQL com criação de tabelas, relacionamentos, chaves primárias e estrangeiras, procedures e inserção de dados fictícios para testes.
 
 ## 🛠️ Tecnologias
 
