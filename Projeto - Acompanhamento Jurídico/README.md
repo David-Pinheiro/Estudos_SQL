@@ -34,19 +34,15 @@ O banco de dados foi planejado para suportar um sistema web com as seguintes fun
 
 ## 📊 Conteúdo:
 
-1. Diagrama Entidade-Relacionamento (DER);
+1. Diagrama relacional com tabelas, tipos e relacionamentos;
 
-2. Diagrama relacional com tabelas, tipos e relacionamentos;
-
-3. Script em MySQL com criação de tabelas, relacionamentos, chaves primárias e estrangeiras, procedures e inserção de dados fictícios para testes.
+2. Script em MySQL com criação de tabelas, relacionamentos, chaves primárias e estrangeiras, procedures e inserção de dados fictícios para testes.
 
 ## 🛠️ Tecnologias
 
 - MySQL (linguagem SQL e engine do banco de dados);
 
 - MySQL Workbench 8.0 CE (ambiente de modelagem e execução);
-
-- Draw.io (criação de diagramas).
 
 ## 🎯 Objetivo
 
