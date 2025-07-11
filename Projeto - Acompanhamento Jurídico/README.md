@@ -36,7 +36,9 @@ O banco de dados foi planejado para suportar um sistema web com as seguintes fun
 
 1. Diagrama relacional com tabelas, tipos e relacionamentos;
 
-2. Script em MySQL com criação de tabelas, relacionamentos, chaves primárias e estrangeiras, procedures e inserção de dados fictícios para testes.
+2. Script em MySQL com criação de tabelas, relacionamentos, chaves primárias e estrangeiras, procedures e inserção de dados fictícios para testes;
+
+3. Script em MySQL com exemplos de consultas que podem servir de referência para que o sistema gere relatórios, além da criação de objetos de banco de dados.
 
 ## 🛠️ Tecnologias
 
