@@ -43,11 +43,11 @@ Projeto prático de modelagem e implementação de um banco de dados para um sis
 
 Conteúdo:
 
-- Diagrama de Caso de Uso (UML);
-
-- Diagrama Entidade-Relacionamento (DER);
+- Diagrama do Banco de Dados;
 
 - Script em MySQL para criação do banco de dados, tabelas, chaves primárias e secundárias, stored procedures e inserção de dados fictícios para teste;
+
+- Script complementar com exemplos de consultas e criação de novos objetos, para auxiliar na extração de informações.
 
 - README.md: objetivo do projeto, escopo atual e próximos passos.
 
