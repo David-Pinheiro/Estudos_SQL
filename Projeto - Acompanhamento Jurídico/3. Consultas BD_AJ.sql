@@ -20,8 +20,8 @@ SELECT
     c.ds_Email AS 'E-mail',
     GROUP_CONCAT(p.cd_NumeroProcesso SEPARATOR ' - ') AS 'Processo(s)'
 FROM Cliente c
-INNER JOIN Cliente_Processo cp ON cp.cd_Cliente = c.cd_Cliente
-INNER JOIN Processo p ON cp.cd_Processo = p.cd_Processo
+LEFT JOIN Cliente_Processo cp ON cp.cd_Cliente = c.cd_Cliente
+LEFT JOIN Processo p ON cp.cd_Processo = p.cd_Processo
 GROUP BY
 	c.nm_Cliente, 
     c.cd_CPF, 
@@ -40,9 +40,9 @@ GROUP BY
 SELECT 
 	c.nm_Cliente AS 'Cliente',
     GROUP_CONCAT(p.cd_NumeroProcesso SEPARATOR '\n') AS 'Processo'
-FROM Cliente_Processo cp
-INNER JOIN Cliente c ON c.cd_Cliente = cp.cd_Cliente
-INNER JOIN Processo p ON p.cd_Processo = cp.cd_Processo
+FROM Cliente c
+LEFT JOIN Cliente_Processo cp ON c.cd_Cliente = cp.cd_Cliente
+LEFT JOIN Processo p ON p.cd_Processo = cp.cd_Processo
 GROUP BY c.nm_Cliente;
 
 -- 1.3 Exibir todas as intimações de um determinado processo, em ordem de recebimento.
@@ -87,7 +87,7 @@ INNER JOIN TipoColaborador tc ON tc.cd_TipoColaborador = c.cd_TipoColaborador
 WHERE t.cd_StatusTarefa <> 3 -- código para Status "Concluída"
 GROUP BY c.nm_Colaborador, tc.nm_TipoColaborador;
 
--- 1.6 Lista tarefas com status específico
+-- 1.6 Listar tarefas com status específico
 
 -- Exemplo de status para teste
 SET @status = 'Em andamento';
@@ -96,6 +96,33 @@ SELECT *
 FROM Tarefa t
 INNER JOIN StatusTarefa st ON st.cd_StatusTarefa = t.cd_StatusTarefa
 WHERE st.nm_StatusTarefa = @status;
+
+-- 1.7 Listar tarefas com fase específica
+
+-- Exemplo de fase para teste
+SET @fase = 'Conhecimento';
+
+SELECT
+	p.cd_Processo AS 'Código',
+    p.cd_NumeroProcesso AS 'Processo',
+    CASE WHEN cp.cd_PosicaoAcao = 1 THEN CONCAT(p.nm_Autor, ' (cliente)') ELSE p.nm_Autor END AS 'Autor',
+    CASE WHEN cp.cd_PosicaoAcao = 2 THEN CONCAT(p.nm_Reu, ' (cliente)') ELSE p.nm_Reu END AS 'Réu',
+    p.ds_Acao AS 'Ação',
+    p.ds_Juizo AS 'Juízo',
+    p.nm_Cidade AS 'Cidade',
+    p.sg_Tribunal AS 'Tribunal',
+    p.vl_Causa AS 'Valor da causa'
+FROM Processo p
+INNER JOIN FaseProcesso fp ON fp.cd_FaseProcesso = p.cd_FaseProcesso
+INNER JOIN Cliente_Processo cp ON cp.cd_Processo = p.cd_Processo
+WHERE fp.nm_FaseProcesso = @fase;
+
+-- 1.8 Buscar intimações pendentes de providências atribuídas (ou seja, intimações sem tarefa associada).
+
+SELECT *
+FROM Intimacao i
+LEFT JOIN Tarefa t ON t.cd_Intimacao = i.cd_Intimacao
+WHERE i.cd_Intimacao NOT IN (SELECT cd_Intimacao FROM Tarefa);
 
 -- 2 CONSUTLAS BASEADAS EM DATAS
 -- 2.1 Listar tarefas com prazo vencido.
@@ -176,6 +203,45 @@ WHERE
 	c.nm_Colaborador = @colaborador AND
 	t.cd_StatusTarefa <> 3;
 
+-- 3.3 Consultas as informações sobre as atividades de um colaborador
+
+-- Exemplo de colaborador para teste
+SET @colaborador = 'Ana Paula';
+
+SELECT
+	c.nm_Colaborador AS 'Colaborador',
+    COUNT(t.cd_Tarefa) AS 'Quant. Tarefas',
+    COUNT(CASE WHEN t.cd_StatusTarefa = 1 THEN t.cd_Tarefa END) AS 'Quant. Tarefas - aguardando',
+    COUNT(CASE WHEN t.cd_StatusTarefa = 2 THEN t.cd_Tarefa END) AS 'Quant. Tarefas - em andamento',
+    COUNT(CASE WHEN t.cd_StatusTarefa = 3 THEN t.cd_Tarefa END) AS 'Quant. Tarefas - concluída',
+    COUNT(i.cd_Intimacao) AS 'Quant. Intimações',
+    GROUP_CONCAT(p.cd_NumeroProcesso SEPARATOR '\n') AS 'Processo(s)'
+FROM Colaborador c
+INNER JOIN Tarefa t ON c.cd_Colaborador = c.cd_Colaborador AND t.cd_Colaborador = c.cd_Colaborador
+INNER JOIN Intimacao i ON i.cd_Intimacao = t.cd_Intimacao
+INNER Join Processo p ON p.cd_Processo = i.cd_Processo
+WHERE c.nm_Colaborador = @colaborador
+GROUP BY c.nm_Colaborador;
+
+-- 3.4 Listar a quantidade de tarefas cumpridas por colaborador, em mês e ano específicos
+
+-- Exemplo de mês e ano para teste
+SET @mes = 5;
+SET @ano = 2025;
+
+SELECT
+	c.nm_Colaborador AS 'Colaborador',
+    t.cd_Tarefa AS 'Cod. Tarefa',
+    t.dt_Registro AS 'Data cadastro',
+    t.dt_Prazo AS 'Prazo',
+    t.nm_TipoTarefa AS 'Tarefa',
+    t.ds_Tarefa AS 'Providência',
+    st.nm_StatusTarefa AS 'Status'
+FROM Tarefa t
+INNER JOIN Colaborador c ON c.cd_Colaborador = t.cd_Colaborador
+INNER JOIN StatusTarefa st ON st.cd_StatusTarefa = t.cd_StatusTarefa
+WHERE MONTH(t.dt_Registro) = @mes AND YEAR(t.dt_Registro) = @ano AND t.cd_StatusTarefa = 3;
+
 -- 4 CONSULTAS POR TRIBUNAL OU CIDADE
 -- 4.1 Agrupar processos por tribunal.
 
@@ -203,7 +269,6 @@ SELECT
     nm_Cidade AS 'Cidade'
 FROM Processo
 ORDER BY nm_Cidade;
-
 
 -- 5 CONSULTAS ANALÍTICAS
 -- 5.1 Contar quantos processos cada cliente possui.
@@ -246,6 +311,17 @@ FROM Tarefa t
 INNER JOIN StatusTarefa st ON st.cd_StatusTarefa = t.cd_StatusTarefa
 GROUP BY st.nm_StatusTarefa;
 
+-- Calcular a quantidade de processos em cada fase
+
+SELECT
+	COUNT(p.cd_Processo) AS 'Total de processos',
+    COUNT(CASE WHEN p.cd_FaseProcesso = 1 THEN p.cd_Processo END) AS 'Fase de conhecimento',
+    COUNT(CASE WHEN p.cd_FaseProcesso = 2 THEN p.cd_Processo END) AS 'Fase recursal',
+    COUNT(CASE WHEN p.cd_FaseProcesso = 3 THEN p.cd_Processo END) AS 'Fase de execução',
+    COUNT(CASE WHEN p.cd_FaseProcesso = 4 THEN p.cd_Processo END) AS 'Finalizado'
+FROM Processo p
+INNER JOIN FaseProcesso fp ON fp.cd_FaseProcesso = p.cd_FaseProcesso;
+
 -- 5.5 Identificar processos com mais de n intimações
 
 -- Exemplo de quantidade de intimações para teste
@@ -262,6 +338,21 @@ INNER JOIN Cliente_Processo cp ON cp.cd_Processo = p.cd_Processo
 INNER JOIN Cliente c ON c.cd_Cliente = cp.cd_Cliente
 GROUP BY p.cd_NumeroProcesso, p.ds_Acao, c.cd_Cliente
 HAVING COUNT(i.cd_Processo) >= @quant_intimacoes;
+
+-- 5.6 Relatório mensal de produtividade por colaborador (quantidade de tarefas concluídas no mês).
+
+-- Exemplo de mês e ano para teste
+SET @mes = 5;
+SET @ano = 2025;
+
+SELECT
+	c.nm_Colaborador AS 'Colaborador',
+    COUNT(*) AS 'Quantidade'
+FROM Tarefa t
+INNER JOIN Colaborador c ON c.cd_Colaborador = t.cd_Colaborador
+INNER JOIN StatusTarefa st ON st.cd_StatusTarefa = t.cd_StatusTarefa
+WHERE MONTH(t.dt_Registro) = @mes AND YEAR(t.dt_Registro) = @ano AND t.cd_StatusTarefa = 3
+GROUP BY c.nm_Colaborador;
 
 -- 6 OBJETOS PROGRAMÁVEIS DO BANCO DE DADOS (Views, Procedures e Triggers)
 

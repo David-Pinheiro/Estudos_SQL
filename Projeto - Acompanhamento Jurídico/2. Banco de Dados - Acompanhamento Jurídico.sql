@@ -1,12 +1,10 @@
--- CRIAÇÃO DO BANCO DE DADOS - SISTEMA ACOMPANHAMENTO JURÍDICO (MySQL)
-
+-- Criação do Banco de Dados
 -- DROP DATABASE IF EXISTS BD_AJ;
 CREATE DATABASE BD_AJ;
 USE BD_AJ;
 
--- CRIAÇÃO DAS TABELAS
+-- Criação das tabelas
 
--- Necessária para fazer a distinção de acordo com as funções do colaborador (exemplo: advogado, assistente, estagiário)
 CREATE TABLE TipoColaborador(
 	cd_TipoColaborador int NOT NULL,
     nm_TipoColaborador varchar(25),
@@ -16,7 +14,7 @@ CREATE TABLE TipoColaborador(
 CREATE TABLE Colaborador(
     cd_Colaborador INT AUTO_INCREMENT NOT NULL,
     nm_Colaborador VARCHAR(40),
-    cd_CPF NUMERIC(11) UNIQUE,					-- Cláusula UNIQUE para prevenir cadastro em duplicidade
+    cd_CPF NUMERIC(11) UNIQUE,
     nm_Logradouro VARCHAR(40),
     nm_Bairro VARCHAR(30),
     nm_Cidade VARCHAR(20),
@@ -35,8 +33,8 @@ CREATE TABLE Colaborador(
 CREATE TABLE Cliente(
     cd_Cliente INT AUTO_INCREMENT NOT NULL,
     nm_Cliente VARCHAR(40),
-    cd_CPF NUMERIC(11) UNIQUE,					-- Cláusula UNIQUE para prevenir cadastro em duplicidade
-    cd_CNPJ NUMERIC(14) UNIQUE,					-- Cláusula UNIQUE para prevenir cadastro em duplicidade
+    cd_CPF NUMERIC(11) UNIQUE,
+    cd_CNPJ NUMERIC(14) UNIQUE,
     nm_Logradouro VARCHAR(40),
     nm_Bairro VARCHAR(30),
     nm_Cidade VARCHAR(20),
@@ -49,23 +47,27 @@ CREATE TABLE Cliente(
     PRIMARY KEY (cd_Cliente)
 );
 
--- Indica a forma como o cliente participa do processo judicial (exemplo: autor, réu)
 CREATE TABLE Posicao_na_Acao(
 	cd_PosicaoAcao INT NOT NULL,
     nm_PosicaoAcao VARCHAR(15),
     PRIMARY KEY (cd_PosicaoAcao)
 );
 
--- Tribunal de Justiça no qual o processo tramita
 CREATE TABLE Tribunal(
     sg_Tribunal VARCHAR(6) NOT NULL,
     nm_Tribunal VARCHAR(50),
     PRIMARY KEY (sg_Tribunal)
 );
 
+CREATE TABLE FaseProcesso(
+	cd_FaseProcesso INT DEFAULT 1 NOT NULL,
+    nm_FaseProcesso VARCHAR(20),
+    PRIMARY KEY (cd_FaseProcesso)
+);
+
 CREATE TABLE Processo(
     cd_Processo INT AUTO_INCREMENT NOT NULL,
-    cd_NumeroProcesso VARCHAR(25) UNIQUE,				-- Cláusula UNIQUE para prevenir cadastro em duplicidade
+    cd_NumeroProcesso VARCHAR(25) UNIQUE,
     nm_Autor VARCHAR(40),
     nm_Reu VARCHAR(40),
     ds_Juizo VARCHAR(30),
@@ -73,10 +75,10 @@ CREATE TABLE Processo(
     nm_Cidade VARCHAR(20),
     sg_Tribunal VARCHAR(6) NOT NULL,
     vl_Causa DECIMAL(10,2),
+    cd_FaseProcesso INT DEFAULT 1,
     PRIMARY KEY (cd_Processo)
 );
 
--- Tabela auxiliar, para permitir que um processo esteja relacionado a mais de um cliente
 CREATE TABLE Cliente_Processo(
 	cd_Cliente INT NOT NULL,
     cd_Processo INT NOT NULL,
@@ -86,25 +88,23 @@ CREATE TABLE Cliente_Processo(
 
 CREATE TABLE Intimacao(
     cd_Intimacao INT AUTO_INCREMENT NOT NULL,
-    dt_Recebimento DATETIME,					-- DATETIME: relevante armazenar o horário que a intimação foi criada
+    dt_Recebimento DATETIME,
     cd_Processo INT NOT NULL,
     ds_Intimacao TEXT,
     cd_Colaborador int,
     PRIMARY KEY (cd_Intimacao)
 );
 
--- Lista com os possíveis status para uma tarefa ('Aguardando, 'Em andamento', 'Concluído')
 CREATE TABLE StatusTarefa(
-	cd_StatusTarefa int NOT NULL,
+	cd_StatusTarefa INT NOT NULL,
     nm_StatusTarefa VARCHAR(12),
     PRIMARY KEY (cd_StatusTarefa)
 );
 
--- Tarefa a ser cumprida pelos colaboradores, em relação a uma intimação
 CREATE TABLE Tarefa(
     cd_Tarefa INT AUTO_INCREMENT NOT NULL,
     cd_Intimacao INT NOT NULL,
-    dt_Registro DATETIME,					-- DATETIME: relevante armazenar o horário que a tarefa foi criada
+    dt_Registro DATETIME,
     dt_Prazo DATE,
     cd_Colaborador INT NOT NULL,
     cd_StatusTarefa int NOT NULL,
@@ -113,11 +113,15 @@ CREATE TABLE Tarefa(
     PRIMARY KEY (cd_Tarefa)
 );
 
--- CRIAÇÃO DAS CHAVES ESTRANGEIRAS
+-- Criação das Chaves Estrangeiras
 
 ALTER TABLE Processo
 ADD CONSTRAINT FK_Processo_Tribunal
 	FOREIGN KEY (sg_Tribunal) REFERENCES Tribunal (sg_Tribunal);
+    
+ALTER TABLE Processo
+ADD	CONSTRAINT FK_Processo_FaseProcesso
+	FOREIGN KEY (cd_FaseProcesso) REFERENCES FaseProcesso (cd_FaseProcesso);
 
 ALTER TABLE Intimacao
 ADD CONSTRAINT FK_Intimacao_Processo
@@ -155,11 +159,10 @@ ALTER TABLE Cliente_Processo
 ADD	CONSTRAINT FK_ClienteProcesso_PosicaonaAcao
 	FOREIGN KEY (cd_PosicaoAcao) REFERENCES Posicao_na_Acao (cd_PosicaoAcao);
     
--- STORED PROCEDURE PARA INSERÇÃO DE PROCESSOS
+-- Stored Procedure para inserção de processos
     
 DELIMITER $$
 
--- Finalidade: facilitar a alimentação do Banco de Dados e garantir a correta correlação com a tabela Processo com a auxiliar Cliente_Processo
 CREATE PROCEDURE Proc_Insercao_ProcessoCliente (
     IN p_cd_NumeroProcesso VARCHAR(25),
     IN p_cd_Cliente INT,
@@ -202,9 +205,9 @@ END $$
 
 DELIMITER ;
 
--- INSERÇÃO DE DADOS FICTÍCIOS
+-- INSERÇÃO DE DADOS
 
--- Inserção de Tribunais, limitados à atuação jurídica no âmbito do Estado de São Paulo
+-- Inserção de Tribunais
 INSERT INTO Tribunal (sg_Tribunal, nm_Tribunal) 
 VALUES  ('TJSP', 'Tribunal de Justiça de São Paulo'),
 		('TRT2', 'Tribunal Regional do Trabalho da 2ª Região'),
@@ -212,8 +215,15 @@ VALUES  ('TJSP', 'Tribunal de Justiça de São Paulo'),
         ('TST', 'Superior Tribunal do Trabalho'),
 		('STJ', 'Superior Tribunal de Justiça'),
 		('STF', 'Supremo Tribunal Federal');
-        
--- Inserção de tipo de Colaborador, permite a divisão de tipos de acesso/poderes
+	
+-- Inserção de Fases de Processo
+INSERT INTO FaseProcesso (cd_FaseProcesso, nm_FaseProcesso)
+VALUES	(1, 'Conhecimento'),
+		(2, 'Recursal'),
+        (3, 'Execução'),
+        (4, 'Finalizado');
+
+-- Inserção de tipo de Colaborador
 INSERT INTO TipoColaborador (cd_TipoColaborador, nm_TipoColaborador) 
 VALUES
 (1, 'Administrador do Sistema'),
@@ -222,7 +232,6 @@ VALUES
 (4, 'Estagiário');
 
 -- Inserção de tipos de participação do cliente no processo
--- Tabela alimentada com as opções mais básicas, mas permite novas inserções, conforme necessidade do cliente
 INSERT INTO Posicao_na_Acao (cd_PosicaoAcao, nm_PosicaoAcao)
 VALUES
 	(1, 'Autor'),
@@ -230,29 +239,17 @@ VALUES
     (3, 'Terceiro');    
 
 -- Inserção de Status da Tarefa
--- Tabela alimentada com as opções mais simples, mas pemite novas inserções, conforme necessidade do cliente
 INSERT INTO StatusTarefa (cd_StatusTarefa, nm_StatusTarefa) 
 VALUES
 (1, 'Aguardando'),
 (2, 'Em andamento'),
 (3, 'Concluído');
         
--- Inserção Colaborador (ressalva: dados apenas fictícios)
+-- Inserção Colaborador
 INSERT INTO Colaborador (
-	nm_Colaborador, 
-    cd_CPF, 
-    nm_Logradouro, 
-    nm_Bairro, 
-    nm_Cidade, 
-    sg_Estado, 
-    cd_CEP, 
-    cd_NumeroEndereco, 
-    ds_ComplementoEndereco, 
-    cd_Telefone, 
-    ds_Email, 
-    nm_Usuario, 
-    ds_Senha, 
-    cd_TipoColaborador)
+	nm_Colaborador, cd_CPF, nm_Logradouro, nm_Bairro, 
+    nm_Cidade, sg_Estado, cd_CEP, cd_NumeroEndereco, ds_ComplementoEndereco, 
+    cd_Telefone, ds_Email, nm_Usuario, ds_Senha, cd_TipoColaborador)
 VALUES
 ('Ana Paula', 45678901234, 'Rua XV de Novembro', 'Gonzaga', 'Santos', 'SP', 11055000, 191, 'Apto 32', '11977773333', 'ana@email.com', 'ana_paula', SHA2('123', 256), 2),
 ('João Mendes', 56789012345, 'Avenida Ana Costa', 'Boqueirão', 'Santos', 'SP', 11060001, 71, 'Sala 5', '13966664444', 'joao@email.com', 'joao_mendes', SHA2('123', 256), 4),
@@ -263,41 +260,31 @@ VALUES
 ('Renata Xavier', 12309876543, 'Alameda Dino Bueno', 'Ponta da Praia', 'Santos', 'SP', 11030000, 8, 'Apto 302', '11911118888', 'renata@email.com', 'renata_x', SHA2('123', 256), 3),
 ('Amanda Lopes', 34509876543, 'Rua Oswaldo Cruz', 'José Menino', 'Santos', 'SP', 11065050, 63, 'Casa dos fundos', '11999997777', 'amanda@email.com', 'amanda_l', SHA2('123', 256), 4);
 
--- Inserção Clientes (ressalva: dados apenas fictícios)
-INSERT INTO Cliente (
-	nm_Cliente, 
-    cd_CPF, 
-    nm_Logradouro, 
-    nm_Bairro, 
-    nm_Cidade,
-    sg_Estado, 
-    cd_CEP, 
-    cd_NumeroEndereco, 
-    ds_ComplementoEndereco, 
-    cd_Telefone, 
-    ds_Email) 
+-- Inserção Clientes
+INSERT INTO Cliente 
+	(nm_Cliente, cd_CPF, cd_CNPJ, nm_Logradouro, nm_Bairro, 
+    nm_Cidade, sg_Estado, cd_CEP, cd_NumeroEndereco, ds_ComplementoEndereco, 
+    cd_Telefone, ds_Email) 
 VALUES
-('Carlos Silva', 12345678901, 'Rua João Pessoa', 'Vila Belmiro', 'Santos', 'SP', 11055030, 63, 'Apto 12', '11999990000', 'carlos@email.com'),
-('Maria Souza', 23456789012, 'Avenida Bernardino de Campos', 'Boqueirão', 'Santos', 'SP', 11060002, 48, 'Sala 3', '11988881111', 'maria@email.com'),
-('Fernando Lima', 34567890123, 'Rua Brás Cubas', 'Centro', 'Guarujá', 'SP', 11410000, 28, NULL, '13999992222', 'fernando@email.com'),
-('Juliana Costa', 45678901234, 'Praça Mauá', 'Valongo', 'Santos', 'SP', 11010000, 91, 'Loja 5', '13977773333', 'juliana@email.com'),
-('Roberto Almeida', 56789012345, 'Rua do Comércio', 'Encruzilhada', 'Santos', 'SP', 11055040, 37, 'Apto 45', '13966665555', 'roberto@email.com'),
-('Tatiane Rocha', 67890123456, 'Avenida Washington Luiz', 'Piratininga', 'São Vicente', 'SP', 11330000, 28, 'Casa 7', '13955557777', 'tatiane@email.com'),
-('Marcos Ribeiro', 78901234567, 'Alameda Ari Barroso', 'Marapé', 'Santos', 'SP', 11055050, 11, 'Apto 201', '13944449999', 'marcos@email.com'),
-('Vanessa Martins', 89012345678, 'Rua da Constituição', 'Gonzaga', 'Santos', 'SP', 11055010, 64, NULL, '13933338888', 'vanessa@email.com'),
-('Luciano Carvalho', 90123456789, 'Avenida Pinheiro Machado', 'Vila Nova', 'Santos', 'SP', 11065030, 73, 'Sala 10', '13922221111', 'luciano@email.com'),
-('Priscila Ferreira', 12309876543, 'Rua São Bento', 'Centro', 'Praia Grande', 'SP', 11700000, 82, 'Apto 33', '13911116666', 'priscila@email.com');
+('Carlos Silva', 12345678901, NULL, 'Rua João Pessoa', 'Vila Belmiro', 'Santos', 'SP', 11055030, 63, 'Apto 12', '11999990000', 'carlos@email.com'),
+('Maria Souza', 23456789012, NULL, 'Avenida Bernardino de Campos', 'Boqueirão', 'Santos', 'SP', 11060002, 48, 'Sala 3', '11988881111', 'maria@email.com'),
+('Fernando Lima', 34567890123, NULL, 'Rua Brás Cubas', 'Centro', 'Guarujá', 'SP', 11410000, 28, NULL, '13999992222', 'fernando@email.com'),
+('Juliana Costa', 45678901234, NULL, 'Praça Mauá', 'Valongo', 'Santos', 'SP', 11010000, 91, 'Loja 5', '13977773333', 'juliana@email.com'),
+('Roberto Almeida', 56789012345, NULL, 'Rua do Comércio', 'Encruzilhada', 'Santos', 'SP', 11055040, 37, 'Apto 45', '13966665555', 'roberto@email.com'),
+('Tatiane Rocha', 67890123456, NULL, 'Avenida Washington Luiz', 'Piratininga', 'São Vicente', 'SP', 11330000, 28, 'Casa 7', '13955557777', 'tatiane@email.com'),
+('Marcos Ribeiro', 78901234567, NULL, 'Alameda Ari Barroso', 'Marapé', 'Santos', 'SP', 11055050, 11, 'Apto 201', '13944449999', 'marcos@email.com'),
+('Vanessa Martins', 89012345678, NULL, 'Rua da Constituição', 'Gonzaga', 'Santos', 'SP', 11055010, 64, NULL, '13933338888', 'vanessa@email.com'),
+('Luciano Carvalho', 90123456789, NULL, 'Avenida Pinheiro Machado', 'Vila Nova', 'Santos', 'SP', 11065030, 73, 'Sala 10', '13922221111', 'luciano@email.com'),
+('Priscila Ferreira', 12309876543, NULL, 'Rua São Bento', 'Centro', 'Praia Grande', 'SP', 11700000, 82, 'Apto 33', '13911116666', 'priscila@email.com'),
+('Tech Solutions LTDA', NULL, 12345678000195, 'Rua das Inovações', 'Centro', 'São Paulo', 'SP', 01000000, 100, 'Andar 5', '1133221100', 'contato@techsolutions.com.br'),
+('Comercial Andrade ME', NULL, 23456789000166, 'Avenida Industrial', 'Distrito', 'Campinas', 'SP', 13000000, 245, 'Sala 2', '1923456789', 'vendas@andrademe.com.br'),
+('Construtora Ideal S/A', NULL, 34567890000177, 'Rua das Obras', 'Engenho Velho', 'Santos', 'SP', 11075200, 80, NULL, '1334455566', 'suporte@construtoraideal.com.br'),
+('Green Market Alimentos LTDA', NULL, 45678901000188, 'Alameda das Palmeiras', 'Jardins', 'São Vicente', 'SP', 11340000, 51, 'Loja A', '13988776655', 'sac@greenmarket.com.br'),
+('Fast Courier Transportes', NULL, 56789012000199, 'Rodovia dos Bandeirantes', 'Polo Industrial', 'Guarujá', 'SP', 11420000, 3000, 'Galpão 3', '13999887766', 'logistica@fastcourier.com.br');
 
--- Inserção de Processos (ressalva: dados apenas fictícios)
-INSERT INTO Processo (
-	cd_NumeroProcesso, 
-    nm_Autor,
-    nm_Reu, 
-    ds_Juizo, 
-    ds_Acao, 
-    nm_Cidade, 
-    sg_Tribunal, 
-    vl_Causa) 
+
+-- Inserção de Processos
+INSERT INTO Processo (cd_NumeroProcesso, nm_Autor, nm_Reu, ds_Juizo, ds_Acao, nm_Cidade, sg_Tribunal, vl_Causa) 
 VALUES 
 ('0001111-20.2023.8.26.0001', 'Carlos Silva', 'Empresa XYZ Ltda', 'Vara Cível', 'Danos Morais', 'São Paulo', 'TJSP', 50000.00),
 ('0002222-30.2023.8.26.0002', 'Maria Souza', 'Banco ABC S/A', 'Vara Cível', 'Revisão Contratual', 'São Paulo', 'TJSP', 75000.00),
@@ -310,7 +297,6 @@ VALUES
 ('0009999-00.2023.8.26.0009', 'Luciano Carvalho', 'Comércio de Veículos AutoCar', 'Vara Cível', 'Vício Oculto em Veículo', 'Praia Grande', 'TJSP', 45000.00),
 ('0010000-10.2023.8.26.0010', 'Priscila Ferreira', 'Faculdade Universitas', 'Vara do Consumidor', 'Cobrança Indevida de Mensalidade', 'Praia Grande', 'TJSP', 8000.00);
 
--- Alimentação manual da tabela auxiliar
 INSERT INTO Cliente_Processo (cd_Cliente, cd_Processo, cd_PosicaoAcao)
 VALUES
     (1, 1, 1),
@@ -362,8 +348,7 @@ VALUES
 (14, '2025-05-07 16:20:00', '2025-07-15', 6, 3, 'Cumprir Sentença', 'Implementar medidas para cumprimento de sentença'),
 (15, '2025-05-08 08:30:00', '2025-07-20', 7, 1, 'Retirar Alvará', 'Retirar alvará judicial no fórum');
 
--- INSERÇÃO DE NOVOS PROCESSOS COM A UTILIZAÇÃO DA STORED PROCEDURE
-
+-- Inserção de novos processos com a utilização da Stored Procedure
 -- 1. Processo com Cliente 1 como Réu
 CALL Proc_Insercao_ProcessoCliente(
     '0011111-11.2024.8.26.0011',   		-- Número do processo
