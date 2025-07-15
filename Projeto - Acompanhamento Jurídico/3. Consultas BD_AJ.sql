@@ -3,10 +3,10 @@
 -- 1 CONSULTAS BÁSICAS DE APOIO AO SISTEMA
 -- 1.1 Listar todos os clientes, com todos os dados e números de processos
 
-SELECT 
-	c.nm_Cliente AS 'Cliente',
+SELECT
+    c.nm_Cliente AS 'Cliente',
     CASE 
-		WHEN c.cd_CPF IS NOT NULL THEN c.cd_CPF
+        WHEN c.cd_CPF IS NOT NULL THEN c.cd_CPF
         ELSE  c.cd_CNPJ
 	END AS 'CPF/CNPJ',
 --  CONCAT(c.nm_Logradouro, ', ', c.cd_NumeroEndereco, ', ', c.nm_Bairro, ', ', c.nm_Cidade, ', ', c.sg_Estado, ', CEP ', c.cd_CEP) AS 'Endereço',
@@ -23,7 +23,7 @@ FROM Cliente c
 LEFT JOIN Cliente_Processo cp ON cp.cd_Cliente = c.cd_Cliente
 LEFT JOIN Processo p ON cp.cd_Processo = p.cd_Processo
 GROUP BY
-	c.nm_Cliente, 
+    c.nm_Cliente, 
     c.cd_CPF, 
     c.cd_CNPJ,
     c.nm_Logradouro,
@@ -37,8 +37,8 @@ GROUP BY
 
 -- 1.2 Listar clientes e os respectivos processos em que atuam.
 
-SELECT 
-	c.nm_Cliente AS 'Cliente',
+SELECT
+    c.nm_Cliente AS 'Cliente',
     GROUP_CONCAT(p.cd_NumeroProcesso SEPARATOR '\n') AS 'Processo'
 FROM Cliente c
 LEFT JOIN Cliente_Processo cp ON c.cd_Cliente = cp.cd_Cliente
@@ -51,7 +51,7 @@ GROUP BY c.nm_Cliente;
 SET @processo = '0001111-20.2023.8.26.0001';
 
 SELECT
-	p.cd_NumeroProcesso AS 'Processo',
+    p.cd_NumeroProcesso AS 'Processo',
     i.cd_Intimacao AS 'Código Intimação',
     i.dt_Recebimento AS 'Data recebimento',
     i.ds_Intimacao AS 'Teor da Intimação'
@@ -63,7 +63,7 @@ ORDER BY i.dt_Recebimento ASC;
 -- 1.4 Listar tarefas por status (aguardando, em andamento, concluído).
 
 SELECT
-	t.cd_Tarefa AS 'Tarefa',
+    t.cd_Tarefa AS 'Tarefa',
     t.dt_Registro AS 'Data de registro',
     t.dt_Prazo AS 'Prazo para cumprimento',
     st.nm_StatusTarefa AS 'Status',
@@ -77,8 +77,8 @@ ORDER BY st.nm_StatusTarefa;
 
 -- 1.5 Listar colaboradores e o número de tarefas atribuídas.
 
-SELECT 
-	c.nm_Colaborador AS 'Colaborador',
+SELECT
+    c.nm_Colaborador AS 'Colaborador',
     tc.nm_TipoColaborador AS 'Tipo',
     COUNT(t.cd_Tarefa) AS 'Quantidade de tarefas'
 FROM Colaborador c
@@ -103,7 +103,7 @@ WHERE st.nm_StatusTarefa = @status;
 SET @fase = 'Conhecimento';
 
 SELECT
-	p.cd_Processo AS 'Código',
+    p.cd_Processo AS 'Código',
     p.cd_NumeroProcesso AS 'Processo',
     CASE WHEN cp.cd_PosicaoAcao = 1 THEN CONCAT(p.nm_Autor, ' (cliente)') ELSE p.nm_Autor END AS 'Autor',
     CASE WHEN cp.cd_PosicaoAcao = 2 THEN CONCAT(p.nm_Reu, ' (cliente)') ELSE p.nm_Reu END AS 'Réu',
@@ -136,7 +136,7 @@ WHERE (dt_Prazo < CURDATE()) AND cd_StatusTarefa <> 3;
 SELECT *
 FROM Tarefa
 WHERE 
-	(dt_Prazo BETWEEN CURDATE() AND (DATE_ADD(CURDATE(), INTERVAL 7 DAY))) AND
+    (dt_Prazo BETWEEN CURDATE() AND (DATE_ADD(CURDATE(), INTERVAL 7 DAY))) AND
     cd_StatusTarefa <> 3;
 
 -- 2.3 Buscar intimações recebidas em um determinado mês/ano.
@@ -165,8 +165,8 @@ WHERE dt_Prazo BETWEEN @data1 AND @data2;
 -- Exemplo de colaborador para teste
 SET @colaborador = 'Ana Paula';
 
-SELECT 
-	t.cd_Tarefa AS 'Código tarefa',
+SELECT
+    t.cd_Tarefa AS 'Código tarefa',
     t.dt_Registro AS 'Data de registro',
     t.dt_Prazo AS 'Prazo',
     t.nm_TipoTarefa AS 'Tarefa',
@@ -187,8 +187,8 @@ ORDER BY t.dt_Prazo, t.cd_StatusTarefa;
 -- Exemplo de colaborador para teste
 SET @colaborador = 'João Mendes';
 
-SELECT 
-	p.cd_NumeroProcesso AS 'Número do Processo',
+SELECT
+    p.cd_NumeroProcesso AS 'Número do Processo',
     t.nm_TipoTarefa AS 'Tarefa',
     t.ds_Tarefa AS 'Providência',
     t.dt_Prazo AS 'Prazo',
@@ -209,7 +209,7 @@ WHERE
 SET @colaborador = 'Ana Paula';
 
 SELECT
-	c.nm_Colaborador AS 'Colaborador',
+    c.nm_Colaborador AS 'Colaborador',
     COUNT(t.cd_Tarefa) AS 'Quant. Tarefas',
     COUNT(CASE WHEN t.cd_StatusTarefa = 1 THEN t.cd_Tarefa END) AS 'Quant. Tarefas - aguardando',
     COUNT(CASE WHEN t.cd_StatusTarefa = 2 THEN t.cd_Tarefa END) AS 'Quant. Tarefas - em andamento',
@@ -230,7 +230,7 @@ SET @mes = 5;
 SET @ano = 2025;
 
 SELECT
-	c.nm_Colaborador AS 'Colaborador',
+    c.nm_Colaborador AS 'Colaborador',
     t.cd_Tarefa AS 'Cod. Tarefa',
     t.dt_Registro AS 'Data cadastro',
     t.dt_Prazo AS 'Prazo',
@@ -245,8 +245,8 @@ WHERE MONTH(t.dt_Registro) = @mes AND YEAR(t.dt_Registro) = @ano AND t.cd_Status
 -- 4 CONSULTAS POR TRIBUNAL OU CIDADE
 -- 4.1 Agrupar processos por tribunal.
 
-SELECT 
-	p.cd_NumeroProcesso AS 'Processo',
+SELECT
+    p.cd_NumeroProcesso AS 'Processo',
     p.ds_Acao AS 'Ação',
     p.nm_Autor AS 'Autor',
     p.nm_Reu AS 'Reu',
@@ -259,8 +259,8 @@ ORDER BY t.nm_Tribunal;
 
 -- 4.2 Listar processos que tramitam em determinada cidade.
 
-SELECT 
-	cd_NumeroProcesso AS 'Processo',
+SELECT
+    cd_NumeroProcesso AS 'Processo',
     ds_Acao AS 'Ação',
     nm_Autor AS 'Autor',
     nm_Reu AS 'Reu',
@@ -273,8 +273,8 @@ ORDER BY nm_Cidade;
 -- 5 CONSULTAS ANALÍTICAS
 -- 5.1 Contar quantos processos cada cliente possui.
 
-SELECT 
-	c.nm_Cliente AS 'Cliente',
+SELECT
+    c.nm_Cliente AS 'Cliente',
     COUNT(cp.cd_Cliente) AS 'Quantidade de processos'
 FROM Cliente_Processo cp
 INNER JOIN Cliente c ON c.cd_Cliente = cp.cd_Cliente
@@ -282,8 +282,8 @@ GROUP BY cp.cd_Cliente;
 
 -- 5.2 Calcular o valor total das causas por cliente.
 
-SELECT 
-	c.nm_Cliente AS 'Cliente',
+SELECT
+    c.nm_Cliente AS 'Cliente',
     SUM(p.vl_Causa) AS 'Soma - valor das causas'
 FROM Cliente_Processo cp
 INNER JOIN Cliente c ON c.cd_Cliente = cp.cd_Cliente
@@ -293,7 +293,7 @@ GROUP BY cp.cd_Cliente;
 -- 5.3 Calcular a quantidade de intimações recebidas por cada processo
 
 SELECT
-	p.cd_NumeroProcesso AS 'Processo',
+    p.cd_NumeroProcesso AS 'Processo',
     c.nm_Cliente AS 'Cliente',
     COUNT(i.cd_Processo) As 'Quantidade de intimações'
 FROM Intimacao i
@@ -305,7 +305,7 @@ GROUP BY p.cd_NumeroProcesso, c.nm_Cliente;
 -- 5.4 Calcular a quantidade de tarefas, agrupadas por Status
 
 SELECT
-	st.nm_StatusTarefa AS 'Status da tarefa',
+    st.nm_StatusTarefa AS 'Status da tarefa',
     COUNT(t.cd_StatusTarefa) AS 'Quantidade de tarefas'
 FROM Tarefa t
 INNER JOIN StatusTarefa st ON st.cd_StatusTarefa = t.cd_StatusTarefa
@@ -314,7 +314,7 @@ GROUP BY st.nm_StatusTarefa;
 -- Calcular a quantidade de processos em cada fase
 
 SELECT
-	COUNT(p.cd_Processo) AS 'Total de processos',
+    COUNT(p.cd_Processo) AS 'Total de processos',
     COUNT(CASE WHEN p.cd_FaseProcesso = 1 THEN p.cd_Processo END) AS 'Fase de conhecimento',
     COUNT(CASE WHEN p.cd_FaseProcesso = 2 THEN p.cd_Processo END) AS 'Fase recursal',
     COUNT(CASE WHEN p.cd_FaseProcesso = 3 THEN p.cd_Processo END) AS 'Fase de execução',
@@ -328,7 +328,7 @@ INNER JOIN FaseProcesso fp ON fp.cd_FaseProcesso = p.cd_FaseProcesso;
 SET @quant_intimacoes = 2;
 
 SELECT
-	p.cd_NumeroProcesso AS 'Processo',
+    p.cd_NumeroProcesso AS 'Processo',
     p.ds_Acao AS 'Ação',
     c.nm_Cliente AS 'Cliente',
     COUNT(i.cd_Processo) AS 'Quantidade de intimações'
@@ -346,7 +346,7 @@ SET @mes = 5;
 SET @ano = 2025;
 
 SELECT
-	c.nm_Colaborador AS 'Colaborador',
+    c.nm_Colaborador AS 'Colaborador',
     COUNT(*) AS 'Quantidade'
 FROM Tarefa t
 INNER JOIN Colaborador c ON c.cd_Colaborador = t.cd_Colaborador
@@ -360,7 +360,7 @@ GROUP BY c.nm_Colaborador;
 
 CREATE VIEW vw_Tarefas AS
 SELECT
-	t.cd_Tarefa AS Cod_Tarefa,
+    t.cd_Tarefa AS Cod_Tarefa,
     t.nm_TipoTarefa AS Tarefa,
     t.ds_Tarefa AS Providência,
     t.dt_Prazo AS Prazo,
@@ -377,7 +377,7 @@ INNER JOIN Cliente c ON c.cd_Cliente = cp.cd_Cliente;
 
 -- Exemplo de consulta para teste
 SELECT
-	Tarefa,
+    Tarefa,
     Providência,
     Prazo
 FROM vw_Tarefas

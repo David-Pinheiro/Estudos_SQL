@@ -6,7 +6,7 @@ USE BD_AJ;
 -- Criação das tabelas
 
 CREATE TABLE TipoColaborador(
-	cd_TipoColaborador int NOT NULL,
+    cd_TipoColaborador int NOT NULL,
     nm_TipoColaborador varchar(25),
     PRIMARY KEY (cd_TipoColaborador)
 );
@@ -48,7 +48,7 @@ CREATE TABLE Cliente(
 );
 
 CREATE TABLE Posicao_na_Acao(
-	cd_PosicaoAcao INT NOT NULL,
+    cd_PosicaoAcao INT NOT NULL,
     nm_PosicaoAcao VARCHAR(15),
     PRIMARY KEY (cd_PosicaoAcao)
 );
@@ -60,7 +60,7 @@ CREATE TABLE Tribunal(
 );
 
 CREATE TABLE FaseProcesso(
-	cd_FaseProcesso INT DEFAULT 1 NOT NULL,
+    cd_FaseProcesso INT DEFAULT 1 NOT NULL,
     nm_FaseProcesso VARCHAR(20),
     PRIMARY KEY (cd_FaseProcesso)
 );
@@ -80,7 +80,7 @@ CREATE TABLE Processo(
 );
 
 CREATE TABLE Cliente_Processo(
-	cd_Cliente INT NOT NULL,
+    cd_Cliente INT NOT NULL,
     cd_Processo INT NOT NULL,
     cd_PosicaoAcao INT,
     PRIMARY KEY (cd_Cliente, cd_Processo)
@@ -96,7 +96,7 @@ CREATE TABLE Intimacao(
 );
 
 CREATE TABLE StatusTarefa(
-	cd_StatusTarefa INT NOT NULL,
+    cd_StatusTarefa INT NOT NULL,
     nm_StatusTarefa VARCHAR(12),
     PRIMARY KEY (cd_StatusTarefa)
 );
@@ -210,16 +210,16 @@ DELIMITER ;
 -- Inserção de Tribunais
 INSERT INTO Tribunal (sg_Tribunal, nm_Tribunal) 
 VALUES  ('TJSP', 'Tribunal de Justiça de São Paulo'),
-		('TRT2', 'Tribunal Regional do Trabalho da 2ª Região'),
-		('TRF3', 'Tribunal Regional Federal da 3ª Região'),
+        ('TRT2', 'Tribunal Regional do Trabalho da 2ª Região'),
+        ('TRF3', 'Tribunal Regional Federal da 3ª Região'),
         ('TST', 'Superior Tribunal do Trabalho'),
-		('STJ', 'Superior Tribunal de Justiça'),
-		('STF', 'Supremo Tribunal Federal');
+        ('STJ', 'Superior Tribunal de Justiça'),
+        ('STF', 'Supremo Tribunal Federal');
 	
 -- Inserção de Fases de Processo
 INSERT INTO FaseProcesso (cd_FaseProcesso, nm_FaseProcesso)
 VALUES	(1, 'Conhecimento'),
-		(2, 'Recursal'),
+        (2, 'Recursal'),
         (3, 'Execução'),
         (4, 'Finalizado');
 
@@ -234,7 +234,7 @@ VALUES
 -- Inserção de tipos de participação do cliente no processo
 INSERT INTO Posicao_na_Acao (cd_PosicaoAcao, nm_PosicaoAcao)
 VALUES
-	(1, 'Autor'),
+    (1, 'Autor'),
     (2, 'Réu'),
     (3, 'Terceiro');    
 
@@ -247,7 +247,7 @@ VALUES
         
 -- Inserção Colaborador
 INSERT INTO Colaborador (
-	nm_Colaborador, cd_CPF, nm_Logradouro, nm_Bairro, 
+    nm_Colaborador, cd_CPF, nm_Logradouro, nm_Bairro, 
     nm_Cidade, sg_Estado, cd_CEP, cd_NumeroEndereco, ds_ComplementoEndereco, 
     cd_Telefone, ds_Email, nm_Usuario, ds_Senha, cd_TipoColaborador)
 VALUES
@@ -262,7 +262,7 @@ VALUES
 
 -- Inserção Clientes
 INSERT INTO Cliente 
-	(nm_Cliente, cd_CPF, cd_CNPJ, nm_Logradouro, nm_Bairro, 
+    (nm_Cliente, cd_CPF, cd_CNPJ, nm_Logradouro, nm_Bairro, 
     nm_Cidade, sg_Estado, cd_CEP, cd_NumeroEndereco, ds_ComplementoEndereco, 
     cd_Telefone, ds_Email) 
 VALUES
