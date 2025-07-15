@@ -205,6 +205,96 @@ END $$
 
 DELIMITER ;
 
+-- Trigger para atualização de autor e réu, quando o nome do cliente for alterado
+
+DELIMITER $$
+
+CREATE TRIGGER TG_Update_Cliente_AutorReu
+AFTER UPDATE ON Cliente
+FOR EACH ROW
+BEGIN
+	
+    -- Atualiza processos nos quais o cliente é Autor
+    UPDATE Processo p
+    INNER JOIN Cliente_Processo cp ON cp.cd_Processo = p.cd_Processo
+    SET p.nm_Autor = NEW.nm_Cliente
+    WHERE cp.cd_Cliente = NEW.cd_Cliente AND cp.cd_PosicaoAcao = 1;
+    
+    -- Atualiza processos nos quais o cliente é Réu
+    UPDATE Processo p
+    INNER JOIN Cliente_Processo cp ON cp.cd_Processo = p.cd_Processo
+    SET p.nm_Reu = NEW.nm_Cliente
+    WHERE cp.cd_Cliente = NEW.cd_Cliente AND cp.cd_PosicaoAcao = 2;
+    
+END $$
+
+-- Stored Procedure para update de alterações dos dados de clientes
+    
+DELIMITER $$
+
+CREATE PROCEDURE SP_Update_Cliente (
+    IN sp_cd_Cliente int,
+	IN sp_nm_Cliente varchar(40),
+	IN sp_cd_CPF decimal(11,0),
+	IN sp_cd_CNPJ decimal(14,0), 
+	IN sp_nm_Logradouro varchar(40), 
+	IN sp_nm_Bairro varchar(30),
+	IN sp_nm_Cidade varchar(20),
+	IN sp_sg_Estado char(2),
+	IN sp_cd_CEP decimal(8,0), 
+	IN sp_cd_NumeroEndereco int, 
+	IN sp_ds_ComplementoEndereco varchar(20),
+	IN sp_cd_Telefone decimal(11,0),
+	IN sp_ds_Email varchar(80)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+    
+    -- Verifica se o cliente existe
+    IF NOT EXISTS (SELECT 1 FROM Cliente WHERE cd_Cliente = sp_cd_Cliente) 
+    THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cliente não encontrado';
+    END IF;
+    
+    -- Verifica se CPF já existe em outro cliente
+	IF (sp_cd_CPF IS NOT NULL) AND 
+	EXISTS (SELECT 1 FROM Cliente WHERE cd_CPF = sp_cd_CPF AND cd_Cliente != sp_cd_Cliente) 
+	THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'CPF já cadastrado para outro cliente';
+	END IF;
+
+	-- Verifica se CNPJ já existe em outro cliente
+	IF (sp_cd_CNPJ IS NOT NULL) AND 
+	EXISTS (SELECT 1 FROM Cliente WHERE cd_CNPJ = sp_cd_CNPJ AND cd_Cliente != sp_cd_Cliente) 
+	THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'CNPJ já cadastrado para outro cliente';
+	END IF;
+
+    -- Update dos dados do cliente
+    UPDATE Cliente
+    SET
+    nm_Cliente = COALESCE(sp_nm_Cliente, nm_Cliente),
+	cd_CPF = sp_cd_CPF,
+	cd_CNPJ = sp_cd_CNPJ,
+	nm_Logradouro = sp_nm_Logradouro,
+	nm_Bairro = sp_nm_Bairro,
+	nm_Cidade = sp_nm_Cidade,
+	sg_Estado = sp_sg_Estado,
+	cd_CEP = sp_cd_CEP,
+	cd_NumeroEndereco = sp_cd_NumeroEndereco,
+	ds_ComplementoEndereco = sp_ds_ComplementoEndereco,
+	cd_Telefone = sp_cd_Telefone,
+	ds_Email = sp_ds_Email
+    WHERE cd_Cliente = sp_cd_Cliente;
+
+   COMMIT;
+END $$
+
+DELIMITER ;
+
 -- INSERÇÃO DE DADOS
 
 -- Inserção de Tribunais
