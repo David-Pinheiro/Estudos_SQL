@@ -169,7 +169,7 @@ SELECT
     t.cd_Tarefa AS 'Código tarefa',
     t.dt_Registro AS 'Data de registro',
     t.dt_Prazo AS 'Prazo',
-    t.nm_TipoTarefa AS 'Tarefa',
+    tt.nm_TipoTarefa AS 'Tarefa',
     t.ds_Tarefa AS 'Providência',
     p.cd_NumeroProcesso AS 'Processo',
     st.nm_StatusTarefa AS 'Status',
@@ -179,6 +179,7 @@ INNER JOIN Colaborador c ON t.cd_Colaborador = c.cd_Colaborador
 INNER JOIN StatusTarefa st ON st.cd_StatusTarefa = t.cd_StatusTarefa
 INNER JOIN Intimacao i ON i.cd_Intimacao = t.cd_Intimacao
 INNER JOIN Processo p ON p.cd_Processo = i.cd_Processo
+INNER JOIN TipoTarefa tt ON tt.cd_TipoTarefa = t.cd_TipoTarefa
 WHERE c.nm_Colaborador = @colaborador
 ORDER BY t.dt_Prazo, t.cd_StatusTarefa;
 
@@ -189,7 +190,7 @@ SET @colaborador = 'João Mendes';
 
 SELECT
     p.cd_NumeroProcesso AS 'Número do Processo',
-    t.nm_TipoTarefa AS 'Tarefa',
+    tt.nm_TipoTarefa AS 'Tarefa',
     t.ds_Tarefa AS 'Providência',
     t.dt_Prazo AS 'Prazo',
     st.nm_StatusTarefa AS 'Status',
@@ -199,6 +200,7 @@ INNER JOIN Intimacao i ON i.cd_Intimacao = t.cd_Intimacao
 INNER JOIN Processo p ON p.cd_Processo = i.cd_Processo
 INNER JOIN Colaborador c ON c.cd_Colaborador = t.cd_Colaborador
 INNER JOIN StatusTarefa st ON t.cd_StatusTarefa = st.cd_StatusTarefa
+INNER JOIN TipoTarefa tt ON tt.cd_TipoTarefa = t.cd_TipoTarefa
 WHERE 
 	c.nm_Colaborador = @colaborador AND
 	t.cd_StatusTarefa <> 3;
@@ -234,12 +236,13 @@ SELECT
     t.cd_Tarefa AS 'Cod. Tarefa',
     t.dt_Registro AS 'Data cadastro',
     t.dt_Prazo AS 'Prazo',
-    t.nm_TipoTarefa AS 'Tarefa',
+    tt.nm_TipoTarefa AS 'Tarefa',
     t.ds_Tarefa AS 'Providência',
     st.nm_StatusTarefa AS 'Status'
 FROM Tarefa t
 INNER JOIN Colaborador c ON c.cd_Colaborador = t.cd_Colaborador
 INNER JOIN StatusTarefa st ON st.cd_StatusTarefa = t.cd_StatusTarefa
+INNER JOIN TipoTarefa tt ON tt.cd_TipoTarefa = t.cd_TipoTarefa
 WHERE MONTH(t.dt_Registro) = @mes AND YEAR(t.dt_Registro) = @ano AND t.cd_StatusTarefa = 3;
 
 -- 4 CONSULTAS POR TRIBUNAL OU CIDADE
@@ -361,7 +364,7 @@ GROUP BY c.nm_Colaborador;
 CREATE VIEW vw_Tarefas AS
 SELECT
     t.cd_Tarefa AS Cod_Tarefa,
-    t.nm_TipoTarefa AS Tarefa,
+    tt.nm_TipoTarefa AS Tarefa,
     t.ds_Tarefa AS Providência,
     t.dt_Prazo AS Prazo,
     st.nm_StatusTarefa AS Status,
@@ -373,7 +376,8 @@ INNER JOIN StatusTarefa st ON st.cd_StatusTarefa = t.cd_StatusTarefa
 INNER JOIN Intimacao i ON i.cd_Intimacao = t.cd_Intimacao
 INNER JOIN Processo p ON p.cd_Processo = i.cd_Processo
 INNER JOIN Cliente_Processo cp ON cp.cd_Processo = p.cd_Processo
-INNER JOIN Cliente c ON c.cd_Cliente = cp.cd_Cliente;
+INNER JOIN Cliente c ON c.cd_Cliente = cp.cd_Cliente
+INNER JOIN TipoTarefa tt ON tt.cd_TipoTarefa = t.cd_TipoTarefa;
 
 -- Exemplo de consulta para teste
 SELECT
