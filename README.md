@@ -1,6 +1,6 @@
 # Estudos_SQL
 
-Este repositório reúne meus estudos sobre SQL, com foco em T-SQL e na modelagem de bancos de dados relacionais. O conteúdo está dividido entre exercícios práticos, desafios propostos em cursos e projetos aplicados, incluindo um sistema jurídico em desenvolvimento.
+Este repositório reúne meus estudos sobre SQL, com foco em T-SQL e na modelagem de bancos de dados relacionais. O conteúdo está dividido entre exercícios práticos, desafios propostos em cursos e projetos aplicados, incluindo um sistema jurídico desenvolvido como Trabalho de Conclusão de Curso.
 
 ## 📚 Estrutura do Repositório
 

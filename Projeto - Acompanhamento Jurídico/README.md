@@ -4,17 +4,19 @@ Projeto de modelagem e criação de um banco de dados para um sistema jurídico,
 
 ## 📌 Resumo do projeto
 
-O sistema Acompanhamento Jurídico está sendo desenvolvido como Trabalho de Conclusão de Curso (TCC) por mim e dois colegas, no curso de Análise e Desenvolvimento de Sistemas da FATEC Rubens Lara.
+O sistema Acompanhamento Jurídico foi desenvolvido como Trabalho de Conclusão de Curso (TCC) por mim e dois colegas, no curso de Análise e Desenvolvimento de Sistemas da FATEC Rubens Lara.
 
 Trata-se de um aplicativo voltado à gestão de intimações e controle de prazos processuais, oferecendo a escritórios jurídicos uma maneira eficiente de organizar a relação de clientes, processos e as tarefas associadas ao cumprimento das intimações.
 
-Minha responsabilidade no projeto inclui:
+Minha responsabilidade no projeto incluiu:
 
 - Planejamento e modelagem do banco de dados relacional;
 
 - Criação de scripts SQL em MySQL (tabelas, chaves, procedures e inserts de teste);
 
-- Otimização de consultas SQL para integração com o sistema.
+- Otimização de consultas SQL para integração com o sistema;
+
+- Estruturação e redação de toda a documentação do projeto.
 
 Além de ser uma aplicação prática dos conhecimentos técnicos adquiridos no curso, o projeto também representa uma ponte com minha formação em Direito, buscando atender necessidades reais do dia a dia de escritórios jurídicos.
 
