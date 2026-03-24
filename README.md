@@ -14,7 +14,7 @@ Conteúdo:
 
 - README.md: visão geral dos tópicos abordados.
 
-### 🧪 Exercícios - Laboratório de Banco de Dados
+### ▶️ Exercícios - Laboratório de Banco de Dados
 
 Atividades desenvolvidas durante a disciplina de Laboratório de Banco de Dados, do curso de Análise e Desenvolvimento de Sistemas, abrangendo desde conhecimentos básicos de SQL até recursos mais avançados.
 
